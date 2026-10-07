@@ -100,7 +100,6 @@ a{color:var(--accent)}
  <div class="bar">
   <select id="sort"><option value="date">Сначала новые</option><option value="views">Сначала популярные</option></select>
   <select id="useF"><option value="">Все статьи</option><option value="yes">Использованные</option><option value="no">Не использованные</option></select>
-  <span class="count" id="usedCount" style="margin-left:0"></span>
   <span id="sync" class="sync"></span>
   <span class="count" id="count"></span>
  </div>
@@ -127,8 +126,8 @@ function render(){
  const t='';
  let r=ROWS.filter(x=>(!sel||x.user===sel)&&(!t||(x.cover+' '+x.visual+' '+x.ru+' '+x.art).toLowerCase().includes(t))&&(!uf.value||(x.art&&(uf.value==='yes')===USED.has(x.aid))));
  r.sort((a,b)=>sortKey==='views'?b.views-a.views:b.date.localeCompare(a.date));
- document.getElementById('count').textContent=r.length+' роликов';
- document.getElementById('usedCount').textContent=`использовано ${[...new Set(ROWS.filter(x=>x.art).map(x=>x.aid))].filter(a=>USED.has(a)).length} из ${new Set(ROWS.filter(x=>x.art).map(x=>x.aid)).size}`;
+ {const A=new Set(ROWS.filter(x=>x.art).map(x=>x.aid));document.getElementById('count').textContent=`${r.length} роликов (${[...A].filter(a=>USED.has(a)).length} из ${A.size} статей использовано)`;}
+ 
  document.getElementById('tb').innerHTML=r.map(x=>`<tr class="${x.art&&USED.has(x.aid)?'used':''}">
  <td class="user">@${esc(x.user)}</td>
  <td class="views ${x.views>=1e6?'m':''}">${fmt(x.views)}</td>
