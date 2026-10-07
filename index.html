@@ -98,7 +98,6 @@ a{color:var(--accent)}
  </header>
  <div class="chips" id="chips"></div>
  <div class="bar">
-  <input type="search" id="q" placeholder="Поиск по тексту и содержанию кадра">
   <select id="sort"><option value="views">Сначала больше просмотров</option><option value="date">Сначала новые</option></select>
   <select id="vF"><option value="">Любые просмотры</option><optgroup label="Не меньше"><option value="1000000-">1 млн+</option><option value="500000-">500 тыс.+</option><option value="300000-">300 тыс.+</option><option value="200000-">200 тыс.+</option></optgroup><optgroup label="Диапазон"><option value="1000000-">1 млн и больше</option><option value="500000-1000000">500 тыс. – 1 млн</option><option value="300000-500000">300–500 тыс.</option><option value="200000-300000">200–300 тыс.</option><option value="100000-200000">100–200 тыс.</option></optgroup></select>
   <label><input type="checkbox" id="hasText"> только с текстом-хуком</label>
@@ -119,7 +118,7 @@ const ROWS=[{"user": "nobodytoldyoublog", "code": "Dd4vj6sgf6C", "views": 175000
 const fmt=n=>n>=1e6?(n/1e6).toFixed(1).replace('.0','')+' млн':Math.round(n/1e3)+' тыс.';
 let sel=null, sortKey='views';
 let USED=new Set(), OPEN=new Set(), DB=null;
-const vf=document.getElementById('vF'), inV=v=>{if(!vf.value)return true;const [a,b]=vf.value.split('-');return v>=+a&&(!b||v<+b)}, uf=document.getElementById('useF'), ha=document.getElementById('hasArt'), q=document.getElementById('q'), so=document.getElementById('sort'), ht=document.getElementById('hasText');
+const vf=document.getElementById('vF'), inV=v=>{if(!vf.value)return true;const [a,b]=vf.value.split('-');return v>=+a&&(!b||v<+b)}, uf=document.getElementById('useF'), ha=document.getElementById('hasArt'), so=document.getElementById('sort'), ht=document.getElementById('hasText');
 const users=[...new Set(ROWS.map(r=>r.user))].map(u=>({u,n:ROWS.filter(r=>r.user===u).length})).sort((a,b)=>b.n-a.n);
 const chips=document.getElementById('chips');
 function chip(label,val,n){const b=document.createElement('button');b.className='chip';b.innerHTML=`${label}<b>${n}</b>`;b.onclick=()=>{sel=val;render()};b.dataset.v=val??'';return b}
@@ -128,7 +127,7 @@ const isHook=s=>s && !/^\(без текста|^тг:|^Разверни|^✅|^�
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function render(){
  chips.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String((c.dataset.v||null)===sel)));
- const t=q.value.trim().toLowerCase();
+ const t='';
  let r=ROWS.filter(x=>(!sel||x.user===sel)&&(!t||(x.cover+' '+x.visual+' '+x.ru+' '+x.art).toLowerCase().includes(t))&&(!ht.checked||isHook(x.cover))&&inV(x.views)&&(!ha.checked||x.art)&&(!uf.value||(x.art&&(uf.value==='yes')===USED.has(x.aid))));
  r.sort((a,b)=>sortKey==='views'?b.views-a.views:b.date.localeCompare(a.date));
  document.getElementById('count').textContent=r.length+' роликов';
@@ -144,7 +143,7 @@ function render(){
  <td class="eng">${x.likes?esc(x.likes)+' · '+esc(x.comments):''}</td>
  <td><a href="${x.url}" target="_blank" rel="noopener">открыть</a></td></tr>`).join('');
 }
-q.oninput=render; ht.onchange=render; ha.onchange=render; uf.onchange=render; vf.onchange=render;
+ht.onchange=render; ha.onchange=render; uf.onchange=render; vf.onchange=render;
 document.getElementById('tb').addEventListener('click',e=>{const b=e.target.closest('[data-copy]');if(!b)return;const t=b.previousElementSibling.textContent;navigator.clipboard.writeText(t).then(()=>{b.textContent='Скопировано';setTimeout(()=>b.textContent='Скопировать',1500)}).catch(()=>{const r=document.createRange();r.selectNodeContents(b.previousElementSibling);const s=getSelection();s.removeAllRanges();s.addRange(r)})}); so.onchange=()=>{sortKey=so.value;render()};
 document.querySelectorAll('th button').forEach(b=>b.onclick=()=>{sortKey=b.dataset.s;so.value=sortKey;render()});
 let SRV=new Set(), PEND={};
