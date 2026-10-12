@@ -90,6 +90,13 @@ a{color:var(--accent)}
  td:last-child{grid-column:1/-1;margin-top:6px}
  td:last-child a{display:inline-block;padding:6px 0}
 }
+.acts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.act{display:inline-flex;align-items:center;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;padding:6px 12px;font:600 13px var(--body);cursor:pointer;text-decoration:none;line-height:1.2}
+.act:hover{border-color:var(--accent);color:var(--accent)}
+.act.on{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.acts .usedbox{margin:0;padding:6px 10px;border:1px solid var(--line);border-radius:8px;color:var(--fg);font-weight:600}
+tr.used .acts .usedbox{border-color:var(--accent);color:var(--accent)}
+.art .body{white-space:pre-wrap;margin-top:10px;font-size:14px}
 </style>
 <div class="wrap">
  <header>
@@ -104,7 +111,7 @@ a{color:var(--accent)}
   <span class="count" id="count"></span>
  </div>
  <div class="tablebox"><table>
-  <thead><tr><th>Профиль</th><th><button data-s="views">Просмотры</button></th><th><button data-s="date">Дата</button></th><th>Текст на обложке</th><th>Перевод</th><th>Что в кадре</th><th>Статья (EN)</th><th>Лайки · комм.</th><th>Ролик</th></tr></thead>
+  <thead><tr><th>Профиль</th><th><button data-s="views">Просмотры</button></th><th><button data-s="date">Дата</button></th><th>Текст на обложке</th><th>Перевод</th><th>Что в кадре</th><th>Статья (EN)</th><th>Лайки · комм.</th></tr></thead>
   <tbody id="tb"></tbody>
  </table></div>
  <p class="note">Глубина просмотра: последние ~130 роликов во вкладке Reels каждого профиля. У larin.nexus все 130 последних роликов выше 100K, поэтому показаны не все его залёты. У mrs.lansen просмотрены все 64 ролика. Последние 7 профилей (aliconsciouss, ilyaryazz, xmaslen01, yournextlevel.life, arise_youu, mikestartegy1, f1tboxx) найдены через подписки исходных авторов. 7 октября у всех аккаунтов базы и у 30 новых (psy.gleb, ythemark, losev_fit и др.) просмотрены последние 10 рилсов: добавлены новые со 100K+, у старых обновлены просмотры. Обложки разобраны у 1001 из 1006 роликов, остальные дописываю.</p>
@@ -135,12 +142,11 @@ function render(){
  <td class="cover">${x.cover?esc(x.cover):''}</td>
  <td class="ru">${x.ru?esc(x.ru):''}</td>
  <td class="txt">${x.visual?esc(x.visual):'<span class="empty">ещё не разобрано</span>'}</td>
- <td class="art">${x.art?`<label class="usedbox"><input type="checkbox" data-used="${x.aid}" ${USED.has(x.aid)?'checked':''}> Использовал</label><details data-aid="${x.aid}" ${OPEN.has(x.aid)?'open':''}><summary>Читать · ${x.art.length} симв.</summary><div class="body">${esc(x.art)}</div><button data-copy>Скопировать</button></details>`:'<span class="empty">не тема блога</span>'}</td>
- <td class="eng">${x.likes?esc(x.likes)+' · '+esc(x.comments):''}</td>
- <td><a href="${x.url}" target="_blank" rel="noopener">открыть</a></td></tr>`).join('');
+ <td class="art"><div class="acts">${x.art?`<button class="act ${OPEN.has(x.aid)?'on':''}" data-read="${x.aid}">${OPEN.has(x.aid)?'Скрыть':'Читать'}</button>`:''}<a class="act" href="${x.url}" target="_blank" rel="noopener">Открыть</a>${x.art?`<button class="act" data-copy="${x.aid}">Копировать</button><label class="usedbox"><input type="checkbox" data-used="${x.aid}" ${USED.has(x.aid)?'checked':''}> Использовал</label>`:''}</div>${x.art&&OPEN.has(x.aid)?`<div class="body">${esc(x.art)}</div>`:''}</td>
+ <td class="eng">${x.likes?esc(x.likes)+' · '+esc(x.comments):''}</td></tr>`).join('');
 }
 uf.onchange=render;
-document.getElementById('tb').addEventListener('click',e=>{const b=e.target.closest('[data-copy]');if(!b)return;const t=b.previousElementSibling.textContent;navigator.clipboard.writeText(t).then(()=>{b.textContent='Скопировано';setTimeout(()=>b.textContent='Скопировать',1500)}).catch(()=>{const r=document.createRange();r.selectNodeContents(b.previousElementSibling);const s=getSelection();s.removeAllRanges();s.addRange(r)})}); so.onchange=()=>{sortKey=so.value;render()};
+document.getElementById('tb').addEventListener('click',e=>{const r=e.target.closest('[data-read]');if(r){const a=r.dataset.read;OPEN.has(a)?OPEN.delete(a):OPEN.add(a);render();return}const b=e.target.closest('[data-copy]');if(!b)return;const x=ROWS.find(y=>y.aid===b.dataset.copy);if(!x)return;const done=()=>{b.textContent='Скопировано';setTimeout(()=>b.textContent='Копировать',1500)};const fb=()=>{const ta=document.createElement('textarea');ta.value=x.art;document.body.append(ta);ta.select();try{document.execCommand('copy');done()}catch(_){}ta.remove()};navigator.clipboard?navigator.clipboard.writeText(x.art).then(done,fb):fb()}); so.onchange=()=>{sortKey=so.value;render()};
 document.querySelectorAll('th button').forEach(b=>b.onclick=()=>{sortKey=b.dataset.s;so.value=sortKey;render()});
 let SRV=new Set(), PEND={};
 const ls={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
