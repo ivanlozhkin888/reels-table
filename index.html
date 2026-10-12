@@ -91,12 +91,14 @@ a{color:var(--accent)}
  td:last-child a{display:inline-block;padding:6px 0}
 }
 .acts{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.act{display:inline-flex;align-items:center;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;padding:6px 12px;font:600 13px var(--body);cursor:pointer;text-decoration:none;line-height:1.2}
-.act:hover{border-color:var(--accent);color:var(--accent)}
-.act.on{background:var(--accent);border-color:var(--accent);color:var(--bg)}
-.acts .usedbox{margin:0;padding:6px 10px;border:1px solid var(--line);border-radius:8px;color:var(--fg);font-weight:600}
+.art .act{margin:0;display:inline-flex;align-items:center;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;padding:6px 12px;font:600 13px var(--body);cursor:pointer;text-decoration:none;line-height:1.2}
+.art .act:hover{border-color:var(--accent);color:var(--accent)}
+.art .act.on{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.art .acts .usedbox{margin:0;padding:6px 10px;font-size:13px;border:1px solid var(--line);border-radius:8px;color:var(--fg);font-weight:600}
 tr.used .acts .usedbox{border-color:var(--accent);color:var(--accent)}
 .art .body{white-space:pre-wrap;margin-top:10px;font-size:14px}
+.art .acts .usedbox input{width:16px;height:16px}
+.art{min-width:40ch}
 </style>
 <div class="wrap">
  <header>
