@@ -11,6 +11,7 @@
 :root[data-theme="dark"]{--bg:#121816;--panel:#19211e;--fg:#e4ebe8;--muted:#93a29c;--line:#2b3632;--accent:#5cc4ad;--accent-soft:#1d3a33;--hot:#ef8a62;--hot-soft:#3a251c;color-scheme:dark}
 body{background:var(--bg);color:var(--fg);font:15px/1.45 var(--body);padding-inline:16px;padding-block:24px 48px}
 .wrap{max-width:1280px;margin:0 auto;display:flex;flex-direction:column;gap:20px}
+.ttl{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.ttl .act{margin:0}
 h1{font:700 clamp(20px,3vw,28px)/1.15 var(--display);margin:0;text-wrap:balance}
 .sub{color:var(--muted);margin:6px 0 0;max-width:70ch}
 .chips{display:flex;flex-wrap:wrap;gap:8px}
@@ -140,7 +141,7 @@ tr.used td.art .acts label.usedbox{border-color:var(--accent);color:var(--accent
 </style>
 <div class="wrap">
  <header>
-  <h1>Контент-завод</h1>
+  <div class="ttl"><h1>Контент-завод</h1><button class="act" id="refresh" type="button" onclick="this.textContent='Обновляю…';location.replace(location.pathname+'?v='+Date.now())">↻ Обновить</button></div>
  </header>
  <section id="my" class="my"></section>
  <div class="chips" id="chips"></div>
