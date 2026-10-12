@@ -133,7 +133,7 @@ tr.used td.art .acts label.usedbox{border-color:var(--accent);color:var(--accent
 .rec{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:10px;font-size:14px}
 .rec .rh{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .rec .rtg{background:none;border:1px solid var(--line);border-radius:999px;padding:2px 10px;font:inherit;font-size:12px;color:var(--muted);cursor:pointer}
-.rec .rtx{font-size:13px;margin:6px 0 0;line-height:1.4}.rec .rwhy{font-size:13px;color:var(--muted);margin-top:6px}.rec .rwhy p{margin:4px 0}
+.rec .racts{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.rec .racts .act{font-size:12px;padding:4px 10px}.rec .racts label.usedbox{display:inline-flex;align-items:center;gap:4px;cursor:pointer}.rec .rtx{font-size:13px;margin:6px 0 0;line-height:1.4}.rec .rwhy{font-size:13px;color:var(--muted);margin-top:6px}.rec .rwhy p{margin:4px 0}
 .rec ol{margin:8px 0 0;padding-left:22px}.rec li{margin:4px 0;line-height:1.35}
 .rec .rgo{background:none;border:0;padding:0;font:inherit;color:var(--text,inherit);text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
 .rec .rgo:hover{color:var(--accent)}.rec .s{color:var(--muted);font-size:12px}.rec li .s{white-space:nowrap}
@@ -225,8 +225,13 @@ document.getElementById('my').innerHTML=`${M.log&&M.log.days.length?(()=>{const 
 (function(){const M=window.MY;if(!M||!M.hyp)return;const H=M.hyp;const f=n=>(n>=1e6?(n/1e6).toFixed(1).replace('.0','')+' млн':(n/1e3).toFixed(0)+' тыс.').replace(/(\d)\.(\d)/,'$1,$2');
 const esc=s=>s.replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 window.renderRec=function(){const el=document.getElementById('rec');if(!el)return;const P=H.picks.filter(p=>!USED.has(p.aid)).slice(0,10);
- el.innerHTML=`<div class="rec"><div class="rh"><b>Что выложить · ${esc(H.title)}</b><button class="rtg" type="button">почему?</button></div><p class="rtx">${esc(H.text)}</p><div class="rwhy" hidden><p>${esc(H.evidence)}</p><p class="s">${esc(H.next)}</p></div><ol>${P.map(p=>`<li><button class="rgo" data-go="${p.aid}">${esc(p.head.length>95?p.head.slice(0,92)+'…':p.head)}</button> <span class="s">${f(p.views)} · @${p.user}</span></li>`).join('')}</ol></div>`};
-document.getElementById('my').addEventListener('click',e=>{const t=e.target.closest('.rtg');if(t){const w=t.closest('.rec').querySelector('.rwhy');w.hidden=!w.hidden;return}
+ el.innerHTML=`<div class="rec"><div class="rh"><b>Что выложить · ${esc(H.title)}</b><button class="rtg" type="button">почему?</button></div><p class="rtx">${esc(H.text)}</p><div class="rwhy" hidden><p>${esc(H.evidence)}</p><p class="s">${esc(H.next)}</p></div><ol>${P.map(p=>`<li><button class="rgo" data-go="${p.aid}">${esc(p.head.length>95?p.head.slice(0,92)+'…':p.head)}</button> <span class="s">${f(p.views)} · @${p.user}</span><div class="racts"><button class="act" data-rh="${p.aid}">Копировать заголовок</button><button class="act" data-rt="${p.aid}">Копировать текст</button><label class="usedbox act"><input type="checkbox" data-rused="${p.aid}"> Использовал</label></div></li>`).join('')}</ol></div>`};
+const cp=(btn,t,lbl)=>{const ok=()=>{btn.textContent='Скопировано';setTimeout(()=>btn.textContent=lbl,1500)};const fb=()=>{const ta=document.createElement('textarea');ta.value=t;document.body.append(ta);ta.select();try{document.execCommand('copy');ok()}catch(_){}ta.remove()};navigator.clipboard?navigator.clipboard.writeText(t).then(ok,fb):fb()};
+const rowOf=a=>ROWS.find(y=>y.aid===a);
+document.getElementById('my').addEventListener('change',e=>{const c=e.target.closest('[data-rused]');if(!c)return;const a=c.dataset.rused;PEND[a]=c.checked;ls.set('usedPending',PEND);recompute();render();push(a)});
+document.getElementById('my').addEventListener('click',e=>{const hb=e.target.closest('[data-rh]');if(hb){const x=rowOf(hb.dataset.rh);cp(hb,x?(x.art.split('\n')[0].trim()||enHead(x)):'','Копировать заголовок');return}
+ const tb=e.target.closest('[data-rt]');if(tb){const x=rowOf(tb.dataset.rt);cp(tb,x?x.art:'','Копировать текст');return}
+ const t=e.target.closest('.rtg');if(t){const w=t.closest('.rec').querySelector('.rwhy');w.hidden=!w.hidden;return}
  const g=e.target.closest('[data-go]');if(!g)return;const a=g.dataset.go;sel=null;const u=document.getElementById('useF');if(u)u.value='no';OPEN.add(a);render();
  const b=document.querySelector(`[data-read="${a}"]`);if(b)b.closest('tr').scrollIntoView({behavior:'smooth',block:'start'})});
 const _r=render;render=function(){_r();window.renderRec()};window.renderRec();})();
