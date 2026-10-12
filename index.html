@@ -194,7 +194,7 @@ const dd=s=>s.split('-').reverse().slice(0,2).join('.');const now=new Date(M.upd
 const cards=Object.values(M.accounts).map(a=>{const H=M.history.filter(x=>x.followers[a.user]!=null);let from,gain,days,est=false;
  if(H.length>=2){from=H[0].date;gain=a.followers-H[0].followers[a.user];days=Math.max(1,(now-new Date(H[0].date+'T00:00:00Z'))/864e5)}
  else{const ds=a.reels.map(r=>r.date).sort();if(ds.length&&!a.since){from=ds[0];gain=a.followers;days=Math.max(1,(now-new Date(ds[0]+'T00:00:00Z'))/864e5);est=true}}
- let fc='';if(a.followers>=10000)fc='10 000 уже есть';else if(gain>0&&days){const per=gain/days;const left=(10000-a.followers)/per;const t=new Date(now.getTime()+left*864e5);fc=`10 000 ≈ ${t.toLocaleDateString('ru',{month:'long',year:'numeric'})} (${Math.round(per*10)/10}/день)`}else fc='прогноз — после 2 замеров';
+ let fc='';if(a.followers>=10000)fc='10 000 уже есть';else if(gain>0&&days){const per=gain/days;const left=(10000-a.followers)/per;const t=new Date(now.getTime()+left*864e5);fc=`10 000 ≈ ${t.toLocaleDateString('ru',{month:'long',year:'numeric'})} (${String(Math.round(per*10)/10).replace(".",",")}/день)`}else fc='прогноз — после 2 замеров';
  const r=a.reels;const avg=r.length?Math.round(r.reduce((s,x)=>s+x.views,0)/r.length):0;
  return `<div class="mycard"><div class="h"><span>@${a.user}</span><span>${a.followers.toLocaleString('ru')} подп.</span></div>
  <div class="m">${gain!=null?`${gain>=0?'+':''}${gain.toLocaleString('ru')} за ${Math.round(days)} дн.${est?' (с первого рилса)':''}`:'замеры с '+dd(a.since||M.updated)}</div>
