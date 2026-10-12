@@ -119,7 +119,17 @@ tr.used td.art .acts label.usedbox{border-color:var(--accent);color:var(--accent
 .spikes .s{color:var(--muted)}
 .spikes .auth{all:unset;cursor:pointer;color:var(--accent);font-weight:600;text-decoration:underline;text-underline-offset:2px}
 .spikes .auth:hover{opacity:.8}
-.today{background:var(--accent-soft);border-radius:10px;padding:8px 12px;font-size:14px;line-height:1.6}
+.today{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:10px}
+.today .th{font:600 13px var(--body);color:var(--muted);letter-spacing:.02em}
+.today .tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.today .tt{background:var(--accent-soft);border-radius:10px;padding:8px 10px;display:flex;flex-direction:column;gap:2px}
+.today .tt b{font:700 22px/1.1 var(--display);color:var(--accent);font-variant-numeric:tabular-nums}
+.today .tt span{font-size:12px;color:var(--muted)}
+.today .lv{display:flex;flex-wrap:wrap;gap:6px}
+.today .lv span{border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:13px;color:var(--muted)}
+.today .lv b{color:var(--fg);font-family:var(--mono);font-weight:500}
+.today .lv .top{border-color:var(--hot);color:var(--hot)}.today .lv .top b{color:var(--hot)}
+@media (max-width:640px){.today .tiles{grid-template-columns:repeat(2,1fr)}}
 </style>
 <div class="wrap">
  <header>
@@ -204,6 +214,6 @@ const sp=[];for(const a of Object.values(M.accounts)){const v=a.reels.map(x=>x.v
 const G={},solo=[];for(const x of sp){const a=x.src&&x.src.length?x.src[0].user:null;if(!a)continue;if(!G[a])G[a]={best:x,n:0,a};G[a].n++;if(x.views>G[a].best.views)G[a].best=x}
 const rows=[...Object.values(G),...solo].sort((p,q)=>q.best.views-p.best.views).slice(0,10);
 const li=rows.map(g=>`<li><a href="${g.best.url}" target="_blank" rel="noopener"><span class="v">${f(g.best.views)}</span></a> · ${g.a?`<button class="auth" data-author="${g.a}">@${g.a}</button>${g.n>1?` <span class="s">(${g.n})</span>`:''}`:'<span class="s">источник не найден</span>'}</li>`).join('');
-document.getElementById('my').innerHTML=`${M.log&&M.log.days.length?(()=>{const t=M.log.days[M.log.days.length-1];return `<div class="today"><b>Сегодня, ${dd(t.date)}:</b> проанализировано аккаунтов <b>${t.accounts}</b> · найдено рилсов <b>${t.reels}</b> (100K+ ${t.r100} · 300K+ ${t.r300} · 500K+ ${t.r500} · 1M+ ${t.r1m}) · написано постов <b>${t.posts}</b> · новых аккаунтов со 100K <b>${t.newacc}</b></div>`})():''}<div class="mygrid">${cards}</div>${li?`<div class="spikes"><b>Рейтинг</b><ol>${li}</ol></div>`:''}`;document.getElementById('my').addEventListener('click',e=>{const b=e.target.closest('[data-author]');if(!b)return;sel=b.dataset.author;const u=document.getElementById('useF');if(u)u.value='no';sortKey='date';const so2=document.getElementById('sort');if(so2)so2.value='date';render();(document.querySelector('.tablebox')||document.getElementById('tb')).scrollIntoView({behavior:'smooth',block:'start'})});})();
+document.getElementById('my').innerHTML=`${M.log&&M.log.days.length?(()=>{const t=M.log.days[M.log.days.length-1];const tile=(n,l)=>`<div class="tt"><b>${n}</b><span>${l}</span></div>`;return `<div class="today"><div class="th">Сделано сегодня · ${dd(t.date)}</div><div class="tiles">${tile(t.accounts,'аккаунтов проверено')}${tile(t.reels,'новых рилсов')}${tile(t.posts,'постов написано')}${tile(t.newacc,'новых авторов')}</div><div class="lv"><span>100K+ <b>${t.r100}</b></span><span>300K+ <b>${t.r300}</b></span><span>500K+ <b>${t.r500}</b></span><span class="top">1M+ <b>${t.r1m}</b></span></div></div>`})():''}<div class="mygrid">${cards}</div>${li?`<div class="spikes"><b>Рейтинг</b><ol>${li}</ol></div>`:''}`;document.getElementById('my').addEventListener('click',e=>{const b=e.target.closest('[data-author]');if(!b)return;sel=b.dataset.author;const u=document.getElementById('useF');if(u)u.value='no';sortKey='date';const so2=document.getElementById('sort');if(so2)so2.value='date';render();(document.querySelector('.tablebox')||document.getElementById('tb')).scrollIntoView({behavior:'smooth',block:'start'})});})();
 </script>
 </body></html>
