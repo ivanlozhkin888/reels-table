@@ -210,12 +210,12 @@ render();setSync();pull();setInterval(pull,30000);document.addEventListener('vis
 
 (function(){const M=window.MY;if(!M)return;const f=n=>(n>=1e6?(n/1e6).toFixed(1).replace('.0','')+' млн':n>=1e3?(n/1e3).toFixed(n>=1e5?0:1).replace('.0','')+' тыс.':String(n)).replace(/(\d)\.(\d)/,'$1,$2');
 const dd=s=>s.split('-').reverse().slice(0,2).join('.');const now=new Date(M.updated+'T00:00:00Z');
-const cards=Object.values(M.accounts).map(a=>{const H=M.history.filter(x=>x.followers[a.user]!=null&&x.date<M.updated).sort((p,q)=>p.date<q.date?1:-1);const prev=H[0];
- const sg=n=>n==null?'<span class="s">— за сутки</span>':`<span class="${n>0?'up':n<0?'dn':'s'}">${n>0?'+':''}${n.toLocaleString('ru')} за сутки</span>`;
- const df=prev?a.followers-prev.followers[a.user]:null;
- const yd=new Date(now.getTime()-864e5).toISOString().slice(0,10);
- const dr=prev&&prev.reels&&prev.reels[a.user]!=null?a.reels.length-prev.reels[a.user]:a.reels.filter(r=>r.date>=yd).length;
- return `<div class="mycard"><div class="h"><span>@${a.user}</span></div><div class="m"><b>${a.followers.toLocaleString('ru')}</b> подп. · ${sg(df)}</div><div class="m"><b>${a.reels.length}</b> рилс · ${sg(dr)}</div></div>`}).join('');
+const cards=(()=>{const A=Object.values(M.accounts);const sg=n=>n==null?'<span class="s">— за сутки</span>':`<span class="${n>0?'up':n<0?'dn':'s'}">${n>0?'+':''}${n.toLocaleString('ru')} за сутки</span>`;
+ const yd=new Date(now.getTime()-864e5).toISOString().slice(0,10);let F=0,Rn=0,dF=0,dR=0,hasF=true;
+ for(const a of A){const H=M.history.filter(x=>x.followers[a.user]!=null&&x.date<M.updated).sort((p,q)=>p.date<q.date?1:-1);const prev=H[0];
+  F+=a.followers;Rn+=a.reels.length;if(prev)dF+=a.followers-prev.followers[a.user];else hasF=false;
+  dR+=prev&&prev.reels&&prev.reels[a.user]!=null?a.reels.length-prev.reels[a.user]:a.reels.filter(r=>r.date>=yd).length}
+ return `<div class="mycard"><div class="h"><span>${A.map(a=>'@'+a.user).join(' + ')}</span></div><div class="m"><b>${F.toLocaleString('ru')}</b> подп. · ${sg(hasF?dF:null)}</div><div class="m"><b>${Rn}</b> рилс · ${sg(dR)}</div></div>`})();
 const sp=[];for(const a of Object.values(M.accounts)){const v=a.reels.map(x=>x.views).sort((x,y)=>x-y);const med=v.length?v[Math.floor(v.length/2)]:0;for(const x of a.reels)if(x.views>=Math.max(1000,med*3))sp.push({...x,user:a.user,k:med?x.views/med:0})}
 const G={},solo=[];for(const x of sp){const a=x.src&&x.src.length?x.src[0].user:null;if(!a)continue;if(!G[a])G[a]={best:x,n:0,a};G[a].n++;if(x.views>G[a].best.views)G[a].best=x}
 const rows=[...Object.values(G),...solo].sort((p,q)=>q.best.views-p.best.views).slice(0,10);
