@@ -99,6 +99,8 @@ tr.used .acts .usedbox{border-color:var(--accent);color:var(--accent)}
 .art .body{white-space:pre-wrap;margin-top:10px;font-size:14px}
 .art .acts .usedbox input{width:16px;height:16px}
 .art{min-width:40ch}
+.cover .act{margin-top:8px;font-size:12px;padding:5px 10px;display:inline-flex;border:1px solid var(--line);background:var(--panel);color:var(--fg);border-radius:8px;font-weight:600;cursor:pointer}
+.cover .act:hover{border-color:var(--accent);color:var(--accent)}
 </style>
 <div class="wrap">
  <header>
@@ -129,6 +131,7 @@ const chips=document.getElementById('chips');
 function chip(label,val,n){const b=document.createElement('button');b.className='chip';b.innerHTML=`${label}<b>${n}</b>`;b.onclick=()=>{sel=val;render()};b.dataset.v=val??'';return b}
 chips.append(chip('Все',null,ROWS.length),...users.map(x=>chip('@'+x.u,x.u,x.n)));
 const isHook=s=>s && !/^\(без текста|^тг:|^Разверни|^✅|^👇|CTA|^[\p{Emoji}\s.]*$/u.test(s);
+const enHead=x=>{const c=(x.cover||'').trim();if(!c||c==='—'||c==='(без текста)')return '';return /[а-яё]/i.test(c)?(x.ru||''):c};
 function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
 function render(){
  chips.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String((c.dataset.v||null)===sel)));
@@ -141,14 +144,14 @@ function render(){
  <td class="user">@${esc(x.user)}</td>
  <td class="views ${x.views>=1e6?'m':''}">${fmt(x.views)}</td>
  <td class="date">${x.date}</td>
- <td class="cover">${x.cover?esc(x.cover):''}</td>
+ <td class="cover">${x.cover?esc(x.cover):''}${enHead(x)?`<div><button class="act hcopy" data-hcopy="${x.code}">Копировать заголовок</button></div>`:''}</td>
  <td class="ru">${x.ru?esc(x.ru):''}</td>
  <td class="txt">${x.visual?esc(x.visual):'<span class="empty">ещё не разобрано</span>'}</td>
  <td class="art"><div class="acts">${x.art?`<button class="act ${OPEN.has(x.aid)?'on':''}" data-read="${x.aid}">${OPEN.has(x.aid)?'Скрыть':'Читать'}</button>`:''}${x.art?'':`<a class="act" href="${x.url}" target="_blank" rel="noopener">Открыть</a>`}${x.art?`<button class="act" data-copy="${x.aid}">Копировать</button><label class="usedbox"><input type="checkbox" data-used="${x.aid}" ${USED.has(x.aid)?'checked':''}> Использовал</label>`:''}</div>${x.art&&OPEN.has(x.aid)?`<div class="body">${esc(x.art)}</div><a class="act" style="margin-top:10px" href="${x.url}" target="_blank" rel="noopener">Открыть ролик</a>`:''}</td>
  <td class="eng">${x.likes?esc(x.likes)+' · '+esc(x.comments):''}</td></tr>`).join('');
 }
 uf.onchange=render;
-document.getElementById('tb').addEventListener('click',e=>{const r=e.target.closest('[data-read]');if(r){const a=r.dataset.read;OPEN.has(a)?OPEN.delete(a):OPEN.add(a);render();return}const b=e.target.closest('[data-copy]');if(!b)return;const x=ROWS.find(y=>y.aid===b.dataset.copy);if(!x)return;const done=()=>{b.textContent='Скопировано';setTimeout(()=>b.textContent='Копировать',1500)};const fb=()=>{const ta=document.createElement('textarea');ta.value=x.art;document.body.append(ta);ta.select();try{document.execCommand('copy');done()}catch(_){}ta.remove()};navigator.clipboard?navigator.clipboard.writeText(x.art).then(done,fb):fb()}); so.onchange=()=>{sortKey=so.value;render()};
+document.getElementById('tb').addEventListener('click',e=>{const hc=e.target.closest('[data-hcopy]');if(hc){const x=ROWS.find(y=>y.code===hc.dataset.hcopy);const t=x?enHead(x):'';const ok=()=>{hc.textContent='Скопировано';setTimeout(()=>hc.textContent='Копировать заголовок',1500)};const fb=()=>{const ta=document.createElement('textarea');ta.value=t;document.body.append(ta);ta.select();try{document.execCommand('copy');ok()}catch(_){}ta.remove()};navigator.clipboard?navigator.clipboard.writeText(t).then(ok,fb):fb();return}const r=e.target.closest('[data-read]');if(r){const a=r.dataset.read;OPEN.has(a)?OPEN.delete(a):OPEN.add(a);render();return}const b=e.target.closest('[data-copy]');if(!b)return;const x=ROWS.find(y=>y.aid===b.dataset.copy);if(!x)return;const done=()=>{b.textContent='Скопировано';setTimeout(()=>b.textContent='Копировать',1500)};const fb=()=>{const ta=document.createElement('textarea');ta.value=x.art;document.body.append(ta);ta.select();try{document.execCommand('copy');done()}catch(_){}ta.remove()};navigator.clipboard?navigator.clipboard.writeText(x.art).then(done,fb):fb()}); so.onchange=()=>{sortKey=so.value;render()};
 document.querySelectorAll('th button').forEach(b=>b.onclick=()=>{sortKey=b.dataset.s;so.value=sortKey;render()});
 let SRV=new Set(), PEND={};
 const ls={get(k,d){try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
