@@ -138,12 +138,13 @@ tr.used td.art .acts label.usedbox{border-color:var(--accent);color:var(--accent
 .rec ol{margin:10px 0 0;padding:0;list-style:none;counter-reset:r;display:grid;gap:8px}.rec li{counter-increment:r;position:relative;padding:10px 8px 10px 36px;border:1px solid var(--line);border-radius:10px;background:var(--bg,transparent);line-height:1.35}.rec li::before{content:counter(r);position:absolute;left:8px;top:10px;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:700 12px/22px var(--body);text-align:center}.rec .racts{margin:8px 0 0}
 .rec .rgo{background:none;border:0;padding:0;font:inherit;color:var(--text,inherit);text-align:left;cursor:pointer;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}
 .rec .rgo:hover{color:var(--accent)}.rec .s{color:var(--muted);font-size:12px}.rec li .s{white-space:nowrap}
-#totop{position:fixed;right:16px;bottom:16px;width:48px;height:48px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.2);cursor:pointer;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s;z-index:50}
+#refresh,#totop{position:fixed;right:16px;bottom:16px;width:48px;height:48px;border-radius:50%;border:0;background:var(--accent);color:#fff;font-size:22px;line-height:1;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(0,0,0,.2);cursor:pointer;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .2s,transform .2s;z-index:50}
+#refresh{opacity:1;pointer-events:auto;transform:none;font-size:24px}#totop{bottom:72px}
 #totop.on{opacity:1;pointer-events:auto;transform:none}
 </style>
 <div class="wrap">
  <header>
-  <div class="ttl"><h1>Контент-завод</h1><button class="act" id="refresh" type="button" onclick="this.textContent='Обновляю…';location.replace(location.pathname+'?v='+Date.now())">↻ Обновить</button></div>
+  <h1>Контент-завод</h1>
  </header>
  <section id="my" class="my"></section>
  <div class="chips" id="chips"></div>
@@ -239,6 +240,7 @@ document.getElementById('my').addEventListener('click',e=>{const hb=e.target.clo
  const b=document.querySelector(`[data-read="${a}"]`);if(b)b.closest('tr').scrollIntoView({behavior:'smooth',block:'start'})});
 const _r=render;render=function(){_r();window.renderRec()};window.renderRec();})();
 </script>
+<button id="refresh" type="button" aria-label="Обновить" title="Обновить" onclick="this.style.opacity=.6;location.replace(location.pathname+'?v='+Date.now())">↻</button>
 <button id="totop" type="button" aria-label="Наверх" onclick="window.scrollTo({top:0,behavior:'smooth'})">↑</button>
 <script>addEventListener("scroll",()=>document.getElementById("totop").classList.toggle("on",scrollY>600),{passive:true})</script>
 </body></html>
