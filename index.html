@@ -197,8 +197,7 @@ const cards=Object.values(M.accounts).map(a=>{const H=M.history.filter(x=>x.foll
  let fc='';if(a.followers>=10000)fc='10 000 уже есть';else if(gain>0&&days){const per=gain/days;const left=(10000-a.followers)/per;const t=new Date(now.getTime()+left*864e5);fc=`10 000 ≈ ${t.toLocaleDateString('ru',{month:'long',year:'numeric'})} (${String(Math.round(per*10)/10).replace(".",",")}/день)`}else fc='прогноз — после 2 замеров';
  const r=a.reels;const avg=r.length?Math.round(r.reduce((s,x)=>s+x.views,0)/r.length):0;
  return `<div class="mycard"><div class="h"><span>@${a.user}</span><span>${a.followers.toLocaleString('ru')} подп.</span></div>
- <div class="m">${gain!=null?`${gain>=0?'+':''}${gain.toLocaleString('ru')} за ${Math.round(days)} дн.${est?' (с первого рилса)':''}`:'замеры с '+dd(a.since||M.updated)}</div>
- <div class="m">${fc}</div><div class="m">${r.length} рилсов · в среднем ${f(avg)}</div></div>`}).join('');
+ ${gain!=null?`<div class="m">${gain>=0?'+':''}${gain.toLocaleString('ru')} за ${Math.round(days)} дн.</div>`:''}<div class="m">${r.length} рилсов · в среднем ${f(avg)}</div></div>`}).join('');
 const sp=[];for(const a of Object.values(M.accounts)){const v=a.reels.map(x=>x.views).sort((x,y)=>x-y);const med=v.length?v[Math.floor(v.length/2)]:0;for(const x of a.reels)if(x.views>=Math.max(1000,med*3))sp.push({...x,user:a.user,k:med?x.views/med:0})}
 sp.sort((x,y)=>y.date.localeCompare(x.date)||y.views-x.views);
 const li=sp.slice(0,10).map(x=>`<li><a href="${x.url}" target="_blank" rel="noopener"><span class="v">${f(x.views)}</span></a> · ${x.src&&x.src.length?'@'+x.src[0].user:'<span class="s">источник не найден</span>'}</li>`).join('');
