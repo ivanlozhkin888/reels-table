@@ -144,7 +144,7 @@ function render(){
  <td class="cover">${x.cover?esc(x.cover):''}</td>
  <td class="ru">${x.ru?esc(x.ru):''}</td>
  <td class="txt">${x.visual?esc(x.visual):'<span class="empty">ещё не разобрано</span>'}</td>
- <td class="art"><div class="acts">${x.art?`<button class="act ${OPEN.has(x.aid)?'on':''}" data-read="${x.aid}">${OPEN.has(x.aid)?'Скрыть':'Читать'}</button>`:''}<a class="act" href="${x.url}" target="_blank" rel="noopener">Открыть</a>${x.art?`<button class="act" data-copy="${x.aid}">Копировать</button><label class="usedbox"><input type="checkbox" data-used="${x.aid}" ${USED.has(x.aid)?'checked':''}> Использовал</label>`:''}</div>${x.art&&OPEN.has(x.aid)?`<div class="body">${esc(x.art)}</div>`:''}</td>
+ <td class="art"><div class="acts">${x.art?`<button class="act ${OPEN.has(x.aid)?'on':''}" data-read="${x.aid}">${OPEN.has(x.aid)?'Скрыть':'Читать'}</button>`:''}${x.art?'':`<a class="act" href="${x.url}" target="_blank" rel="noopener">Открыть</a>`}${x.art?`<button class="act" data-copy="${x.aid}">Копировать</button><label class="usedbox"><input type="checkbox" data-used="${x.aid}" ${USED.has(x.aid)?'checked':''}> Использовал</label>`:''}</div>${x.art&&OPEN.has(x.aid)?`<div class="body">${esc(x.art)}</div><a class="act" style="margin-top:10px" href="${x.url}" target="_blank" rel="noopener">Открыть ролик</a>`:''}</td>
  <td class="eng">${x.likes?esc(x.likes)+' · '+esc(x.comments):''}</td></tr>`).join('');
 }
 uf.onchange=render;
