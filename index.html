@@ -201,7 +201,7 @@ const cards=Object.values(M.accounts).map(a=>{const H=M.history.filter(x=>x.foll
  <div class="m">${fc}</div><div class="m">${r.length} рилсов · в среднем ${f(avg)}</div></div>`}).join('');
 const sp=[];for(const a of Object.values(M.accounts)){const v=a.reels.map(x=>x.views).sort((x,y)=>x-y);const med=v.length?v[Math.floor(v.length/2)]:0;for(const x of a.reels)if(x.views>=Math.max(1000,med*3))sp.push({...x,user:a.user,k:med?x.views/med:0})}
 sp.sort((x,y)=>y.date.localeCompare(x.date)||y.views-x.views);
-const li=sp.slice(0,10).map(x=>`<li><a href="${x.url}" target="_blank" rel="noopener"><span class="v">${f(x.views)}</span></a> · ${dd(x.date)} @${x.user} <span class="s">← ${x.src&&x.src.length?'@'+x.src[0].user:'источник не найден'}</span></li>`).join('');
+const li=sp.slice(0,10).map(x=>`<li><a href="${x.url}" target="_blank" rel="noopener"><span class="v">${f(x.views)}</span></a> · ${x.src&&x.src.length?'@'+x.src[0].user:'<span class="s">источник не найден</span>'}</li>`).join('');
 document.getElementById('my').innerHTML=`<h2>Мои проекты</h2><div class="mygrid">${cards}</div>${li?`<div class="spikes"><b>Последние скачки просмотров</b><ol>${li}</ol></div>`:''}`})();
 </script>
 </body></html>
