@@ -163,8 +163,8 @@ tr.used td.art .acts label.usedbox{border-color:var(--accent);color:var(--accent
  <section id="my" class="my" hidden></section>
  <div class="chips" id="chips"></div>
  <div class="bar">
-  <select id="sort"><option value="x" selected>Сначала аномальные</option><option value="date">Сначала новые</option><option value="views">Сначала популярные</option></select>
-  <select id="recF"><option value="">Все ролики</option><option value="re">Рекомендую для @evanspoonerlife</option><option value="ri">Рекомендую для @ivanlozhkinn</option><option value="fast">⚡ 100K за 2 дня</option></select>
+  <select id="sort"><option value="x" selected>Сначала аномальные</option><option value="fast">⚡ 100K за 2 дня</option><option value="date">Сначала новые</option><option value="views">Сначала популярные</option></select>
+  <select id="recF"><option value="">Все ролики</option><option value="re">Рекомендую для @evanspoonerlife</option><option value="ri">Рекомендую для @ivanlozhkinn</option></select>
   <select id="useF"><option value="">Все статьи</option><option value="yes">Использованные</option><option value="no" selected>Не использованные</option></select>
   <span id="sync" class="sync"></span>
   <p id="recHint" class="rechint" hidden></p>
@@ -192,8 +192,8 @@ function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>'
 function render(){
  chips.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String((c.dataset.v||null)===sel)));
  const t='';
- let r=ROWS.filter(x=>(!sel||x.user===sel)&&(!t||(x.cover+' '+x.visual+' '+x.ru+' '+x.art).toLowerCase().includes(t))&&(!uf.value||(x.art&&(uf.value==='yes')===USED.has(x.aid)))&&(!recF.value||x[recF.value]!=null));
- r.sort((a,b)=>recF.value==='fast'?(a.fast-b.fast):recF.value?(b[recF.value]-a[recF.value]):sortKey==='views'?b.views-a.views:sortKey==='x'?(b.x||0)-(a.x||0):b.date.localeCompare(a.date));
+ let r=ROWS.filter(x=>(!sel||x.user===sel)&&(!t||(x.cover+' '+x.visual+' '+x.ru+' '+x.art).toLowerCase().includes(t))&&(!uf.value||(x.art&&(uf.value==='yes')===USED.has(x.aid)))&&(!recF.value||x[recF.value]!=null)&&(sortKey!=='fast'||x.fast!=null));
+ r.sort((a,b)=>sortKey==='fast'?(a.fast-b.fast):recF.value?(b[recF.value]-a[recF.value]):sortKey==='views'?b.views-a.views:sortKey==='x'?(b.x||0)-(a.x||0):b.date.localeCompare(a.date));
  {const A=new Set(ROWS.filter(x=>x.art).map(x=>x.aid));document.getElementById('count').textContent=`${r.length} роликов (${[...A].filter(a=>USED.has(a)).length} из ${A.size} статей использовано)`;}
  
  document.getElementById('tb').innerHTML=r.map(x=>`<tr class="${x.art&&USED.has(x.aid)?'used':''}">
