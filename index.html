@@ -195,8 +195,8 @@ function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>'
 function render(){
  chips.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String((c.dataset.v||null)===sel)));
  const t='';
- let r=ROWS.filter(x=>(!sel||x.user===sel)&&(!t||(x.cover+' '+x.visual+' '+x.ru+' '+x.art).toLowerCase().includes(t))&&(!uf.value||(x.art&&(uf.value==='yes')===USED.has(x.aid)))&&(!recF.value||x[recF.value]!=null)&&(sortKey!=='fast'||x.fast!=null));
- r.sort((a,b)=>sortKey==='fast'?(a.fast-b.fast):recF.value?(b[recF.value]-a[recF.value]):sortKey==='views'?b.views-a.views:sortKey==='x'?(b.x||0)-(a.x||0):b.date.localeCompare(a.date));
+ let r=ROWS.filter(x=>(!sel||x.user===sel)&&(!t||(x.cover+' '+x.visual+' '+x.ru+' '+x.art).toLowerCase().includes(t))&&(!uf.value||(x.art&&(uf.value==='yes')===USED.has(x.aid)))&&(!recF.value||x[recF.value]!=null));
+ const _now=Date.now(),_spd=x=>x.views/Math.max(1,(_now-Date.parse(x.date))/864e5);r.sort((a,b)=>sortKey==='fast'?((a.fast!=null)!==(b.fast!=null)?(a.fast!=null?-1:1):a.fast!=null?a.fast-b.fast:_spd(b)-_spd(a)):recF.value?(b[recF.value]-a[recF.value]):sortKey==='views'?b.views-a.views:sortKey==='x'?(b.x||0)-(a.x||0):b.date.localeCompare(a.date));
  {const A=new Set(ROWS.filter(x=>x.art).map(x=>x.aid));document.getElementById('count').textContent=`${r.length} роликов (${[...A].filter(a=>USED.has(a)).length} из ${A.size} статей использовано)`;}
  
  document.getElementById('tb').innerHTML=r.map(x=>`<tr class="${x.art&&USED.has(x.aid)?'used':''}">
