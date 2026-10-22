@@ -161,7 +161,7 @@ tr.used td.art .acts label.usedbox{border-color:var(--accent);color:var(--accent
 .myrep .note2{margin:10px 0;padding:8px 10px;background:var(--accent-soft);border-radius:8px;font-size:13px;line-height:1.45}
 .myrep .h{display:block;margin-top:10px;font-size:13px}.myrep ol{margin:6px 0 0;padding-left:20px}.myrep li{margin:5px 0;line-height:1.35}
 .myrep li a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}.myrep .hy{color:var(--accent);font-weight:600}
-.scb{background:#1f6f43;color:#fff;font-weight:700}
+.scb{display:inline-block;background:#1f6f43;color:#fff;font-weight:700;border-radius:6px;padding:1px 6px;margin-right:6px;font-size:.85em}
 </style>
 <div class="wrap">
  <header>
@@ -171,7 +171,7 @@ tr.used td.art .acts label.usedbox{border-color:var(--accent);color:var(--accent
  <section id="my" class="my" hidden></section>
  <div class="chips" id="chips"></div>
  <div class="bar">
-  <select id="sort"><option value="sc" selected>По оценке ★</option><option value="fast">Сначала быстрые</option><option value="x">Сначала аномальные</option><option value="date">Сначала новые</option><option value="views">Сначала популярные</option></select>
+  <select id="sort"><option value="sc" selected>По рейтингу ★</option><option value="fast">Сначала быстрые</option><option value="x">Сначала аномальные</option><option value="date">Сначала новые</option><option value="views">Сначала популярные</option></select>
   <select id="recF"><option value="">Все ролики</option><option value="re">Рекомендую для @evanspoonerlife</option><option value="ri">Рекомендую для @ivanlozhkinn</option></select>
   <select id="useF"><option value="">Все статьи</option><option value="yes">Использованные</option><option value="no" selected>Не использованные</option></select>
   <span id="sync" class="sync"></span>
@@ -214,9 +214,9 @@ function render(){
  
  document.getElementById('tb').innerHTML=r.map(x=>`<tr class="${x.art&&USED.has(x.aid)?'used':''}">
  <td class="user">@${esc(x.user)}</td>
- <td class="views ${x.views>=1e6?'m':''}">${fmt(x.views)}${x.x?`<span class="xb ${x.x>=10?'hot':x.x>=3?'warm':''}" title="Во сколько раз больше обычных просмотров автора${x.vf?' · '+x.vf+'× от числа подписчиков':''}">×${x.x>=10?Math.round(x.x):String(x.x).replace('.',',')} к норме</span>`:''}<span class="b scb" title="Оценка: аномальность до 40 + популярность до 25 + свежесть до 25 + быстрый рост до 10">★ ${SC(x)}</span>${x.fast!=null?`<span class="fastb">${IC.bolt} 100K за ~${x.fast} ч</span>`:''}</td>
+ <td class="views ${x.views>=1e6?'m':''}">${fmt(x.views)}${x.x?`<span class="xb ${x.x>=10?'hot':x.x>=3?'warm':''}" title="Во сколько раз больше обычных просмотров автора${x.vf?' · '+x.vf+'× от числа подписчиков':''}">×${x.x>=10?Math.round(x.x):String(x.x).replace('.',',')} к норме</span>`:''}${x.fast!=null?`<span class="fastb">${IC.bolt} 100K за ~${x.fast} ч</span>`:''}</td>
  <td class="date">${x.date}</td>
- <td class="cover">${x.cover?esc(x.cover):''}</td>
+ <td class="cover"><span class="scb" title="Рейтинг: аномальность до 40 + популярность до 25 + свежесть до 25 + быстрый рост до 10">★ ${SC(x)}</span> ${x.cover?esc(x.cover):''}</td>
  <td class="ru">${x.ru?esc(x.ru):''}</td>
   <td class="art"><div class="acts">${x.art?`<button class="act ${OPEN.has(x.aid)?'on':''}" data-read="${x.aid}">${OPEN.has(x.aid)?IC.close+' Скрыть':IC.read+' Читать'}</button>`:`<a class="act" href="${x.url}" target="_blank" rel="noopener">${IC.play} Открыть</a>`}${enHead(x)?`<button class="act hcopy" data-hcopy="${x.code}">${IC.copy} Заголовок</button>`:''}${x.art?`<button class="act" data-copy="${x.aid}">${IC.copy} Текст</button>`:''}</div>${OPEN.has(x.aid)||(!x.art&&false)?`<div class="body">${x.visual?`<p class="vis"><b>В кадре:</b> ${esc(x.visual)}</p>`:''}${x.art?esc(artBody(x)):''}</div><a class="act" style="margin-top:10px" href="${x.url}" target="_blank" rel="noopener">${IC.play} Открыть ролик</a>`:''}</td>
  <td class="eng">${x.likes?esc(x.likes)+' · '+esc(x.comments):''}</td></tr>`).join('');
