@@ -161,6 +161,7 @@ tr.used td.art .acts label.usedbox{border-color:var(--accent);color:var(--accent
 .myrep .note2{margin:10px 0;padding:8px 10px;background:var(--accent-soft);border-radius:8px;font-size:13px;line-height:1.45}
 .myrep .h{display:block;margin-top:10px;font-size:13px}.myrep ol{margin:6px 0 0;padding-left:20px}.myrep li{margin:5px 0;line-height:1.35}
 .myrep li a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}.myrep .hy{color:var(--accent);font-weight:600}
+.scb{background:#1f6f43;color:#fff;font-weight:700}
 </style>
 <div class="wrap">
  <header>
@@ -170,7 +171,7 @@ tr.used td.art .acts label.usedbox{border-color:var(--accent);color:var(--accent
  <section id="my" class="my" hidden></section>
  <div class="chips" id="chips"></div>
  <div class="bar">
-  <select id="sort"><option value="fast" selected>Сначала быстрые</option><option value="x">Сначала аномальные</option><option value="date">Сначала новые</option><option value="views">Сначала популярные</option></select>
+  <select id="sort"><option value="sc" selected>По оценке ★</option><option value="fast">Сначала быстрые</option><option value="x">Сначала аномальные</option><option value="date">Сначала новые</option><option value="views">Сначала популярные</option></select>
   <select id="recF"><option value="">Все ролики</option><option value="re">Рекомендую для @evanspoonerlife</option><option value="ri">Рекомендую для @ivanlozhkinn</option></select>
   <select id="useF"><option value="">Все статьи</option><option value="yes">Использованные</option><option value="no" selected>Не использованные</option></select>
   <span id="sync" class="sync"></span>
@@ -188,7 +189,8 @@ const ROWS=[{"user": "nobodytoldyoublog", "code": "Dd4vj6sgf6C", "views": 213000
 const fmt=n=>n>=1e6?(n/1e6).toFixed(1).replace('.0','')+' млн':Math.round(n/1e3)+' тыс.';
 const IC={"read": "<svg class=\"ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/></svg>", "close": "<svg class=\"ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M18 6 6 18M6 6l12 12\"/></svg>", "copy": "<svg class=\"ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"9\" y=\"9\" width=\"12\" height=\"12\" rx=\"2\"/><path d=\"M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1\"/></svg>", "check": "<svg class=\"ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M20 6 9 17l-5-5\"/></svg>", "play": "<svg class=\"ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polygon points=\"6 4 20 12 6 20 6 4\"/></svg>", "bolt": "<svg class=\"ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M13 2 3 14h9l-1 8 10-12h-9l1-8z\"/></svg>", "refresh": "<svg class=\"ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M21 12a9 9 0 1 1-2.64-6.36L21 8\"/><path d=\"M21 3v5h-5\"/></svg>", "up": "<svg class=\"ic\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M12 19V5M5 12l7-7 7 7\"/></svg>"};
 const artBody=x=>{const a=(x.art||'').replace(/\r/g,'');const k=a.indexOf('\n');let b=(k<0?'':a.slice(k)).replace(/^\s+/,'');const m=b.search(/\n[ \t]*(\.\.\.|…)[ \t]*(\n|$)(?![\s\S]*\n[ \t]*(\.\.\.|…)[ \t]*(\n|$))/);if(m>=0)b=b.slice(0,m);return b.replace(/\s+$/,'')};
-let sel=null, sortKey='fast';
+let sel=null, sortKey='sc';
+const SC=x=>{const X=x.x||0,V=x.views||0,D=(Date.now()-Date.parse(x.date))/864e5,F=x.fast;const a=X<3?0:X<10?10:X<30?20:X<100?30:X<1000?40:25;const p=V<1e5?0:V<3e5?15:V<1e6?25:V<5e6?18:8;const n=D<=3?20:D<=14?25:D<=30?15:D<=90?8:3;const f=F==null?0:F<=24?10:F<=48?7:0;return a+p+n+f};
 let USED=new Set(), OPEN=new Set(), DB=null;
 uf=document.getElementById('useF'), so=document.getElementById('sort');
 const users=[...new Set(ROWS.map(r=>r.user))].map(u=>({u,n:ROWS.filter(r=>r.user===u).length})).sort((a,b)=>b.n-a.n);
@@ -207,12 +209,12 @@ function render(){
  chips.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String((c.dataset.v||null)===sel)));
  const t='';
  let r=CUR().filter(x=>(!sel||x.user===sel)&&(!t||(x.cover+' '+x.visual+' '+x.ru+' '+x.art).toLowerCase().includes(t))&&(!uf.value||(x.art&&(uf.value==='yes')===USED.has(x.aid)))&&(!recF.value||x[recF.value]!=null));
- const _now=Date.now(),_spd=x=>x.views/Math.max(1,(_now-Date.parse(x.date))/864e5);r.sort((a,b)=>sortKey==='fast'?((a.fast!=null)!==(b.fast!=null)?(a.fast!=null?-1:1):a.fast!=null?a.fast-b.fast:_spd(b)-_spd(a)):recF.value?(b[recF.value]-a[recF.value]):sortKey==='views'?b.views-a.views:sortKey==='x'?(b.x||0)-(a.x||0):b.date.localeCompare(a.date));
+ const _now=Date.now(),_spd=x=>x.views/Math.max(1,(_now-Date.parse(x.date))/864e5);r.sort((a,b)=>sortKey==='sc'&&!recF.value?SC(b)-SC(a):sortKey==='fast'?((a.fast!=null)!==(b.fast!=null)?(a.fast!=null?-1:1):a.fast!=null?a.fast-b.fast:_spd(b)-_spd(a)):recF.value?(b[recF.value]-a[recF.value]):sortKey==='views'?b.views-a.views:sortKey==='x'?(b.x||0)-(a.x||0):b.date.localeCompare(a.date));
  {const A=new Set(CUR().filter(x=>x.art).map(x=>x.aid));document.getElementById('count').textContent=`${r.length} роликов (${[...A].filter(a=>USED.has(a)).length} из ${A.size} статей использовано)`;}
  
  document.getElementById('tb').innerHTML=r.map(x=>`<tr class="${x.art&&USED.has(x.aid)?'used':''}">
  <td class="user">@${esc(x.user)}</td>
- <td class="views ${x.views>=1e6?'m':''}">${fmt(x.views)}${x.x?`<span class="xb ${x.x>=10?'hot':x.x>=3?'warm':''}" title="Во сколько раз больше обычных просмотров автора${x.vf?' · '+x.vf+'× от числа подписчиков':''}">×${x.x>=10?Math.round(x.x):String(x.x).replace('.',',')} к норме</span>`:''}${x.fast!=null?`<span class="fastb">${IC.bolt} 100K за ~${x.fast} ч</span>`:''}</td>
+ <td class="views ${x.views>=1e6?'m':''}">${fmt(x.views)}${x.x?`<span class="xb ${x.x>=10?'hot':x.x>=3?'warm':''}" title="Во сколько раз больше обычных просмотров автора${x.vf?' · '+x.vf+'× от числа подписчиков':''}">×${x.x>=10?Math.round(x.x):String(x.x).replace('.',',')} к норме</span>`:''}<span class="b scb" title="Оценка: аномальность до 40 + популярность до 25 + свежесть до 25 + быстрый рост до 10">★ ${SC(x)}</span>${x.fast!=null?`<span class="fastb">${IC.bolt} 100K за ~${x.fast} ч</span>`:''}</td>
  <td class="date">${x.date}</td>
  <td class="cover">${x.cover?esc(x.cover):''}</td>
  <td class="ru">${x.ru?esc(x.ru):''}</td>
