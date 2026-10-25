@@ -162,6 +162,28 @@ tr.used td.art .acts label.usedbox{border-color:var(--accent);color:var(--accent
 .myrep .h{display:block;margin-top:10px;font-size:13px}.myrep ol{margin:6px 0 0;padding-left:20px}.myrep li{margin:5px 0;line-height:1.35}
 .myrep li a{color:var(--fg);text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:3px}.myrep .hy{color:var(--accent);font-weight:600}
 .scb{display:inline-block;background:#1f6f43;color:#fff;font-weight:700;border-radius:6px;padding:1px 6px;margin-right:6px;font-size:.85em}
+
+.stats{display:flex;flex-direction:column;gap:14px}
+.stats h2{font:700 18px/1.2 var(--display);margin:0}
+.st-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));gap:14px}
+.st-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.st-card h3{margin:0;font:600 16px var(--body)}
+.st-kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px}
+.st-kpi div{display:flex;flex-direction:column;gap:2px}
+.st-kpi b{font:500 20px var(--mono);font-variant-numeric:tabular-nums}
+.st-kpi span{color:var(--muted);font-size:12px}
+.st-up{color:var(--accent)}.st-dn{color:var(--hot)}
+.st-chart{width:100%;height:auto;display:block}
+.st-chart text{font:11px var(--mono);fill:var(--muted)}
+.st-leg{display:flex;gap:14px;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.st-leg i{display:inline-block;width:10px;height:10px;border-radius:2px;margin-right:6px;vertical-align:middle}
+.st-more{align-self:flex-start;border:1px solid var(--line);background:var(--bg);color:var(--fg);border-radius:8px;padding:6px 12px;font:500 13px var(--body);cursor:pointer}
+.st-det{display:flex;flex-direction:column;gap:12px;overflow-x:auto}
+.st-det table{min-width:0;width:100%;font-size:13px}
+.st-det th,.st-det td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.st-det td.n,.st-det th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono)}
+.st-det h4{margin:4px 0 0;font:600 14px var(--body)}
+.st-note{color:var(--muted);font-size:12px;margin:0}
 </style>
 <div class="wrap">
  <header>
@@ -169,6 +191,7 @@ tr.used td.art .acts label.usedbox{border-color:var(--accent);color:var(--accent
   <div class="langtabs" role="tablist"><button type="button" data-lang="en">Посты на английском</button><button type="button" data-lang="ru">Посты на русском</button></div>
  </header>
  <section id="my" class="my" hidden></section>
+ <section id="stats" class="stats"></section>
  <div class="chips" id="chips"></div>
  <div class="bar">
   <select id="sort"><option value="sc" selected>По рейтингу ★</option><option value="fast">Сначала быстрые</option><option value="x">Сначала аномальные</option><option value="date">Сначала новые</option><option value="views">Сначала популярные</option></select>
@@ -271,6 +294,54 @@ document.getElementById('my').addEventListener('click',e=>{const hb=e.target.clo
  const g=e.target.closest('[data-go]');if(!g)return;const a=g.dataset.go;sel=null;const u=document.getElementById('useF');if(u)u.value='no';OPEN.add(a);render();
  const b=document.querySelector(`[data-read="${a}"]`);if(b)b.closest('tr').scrollIntoView({behavior:'smooth',block:'start'})});
 const _r=render;render=function(){_r();window.renderRec()};window.renderRec();})();
+</script>
+<script>
+(()=>{const M=window.MY;if(!M||!M.accounts)return;const box=document.getElementById('stats');
+const ACC=['evanspoonerlife','ivanlozhkinn'],COL={evanspoonerlife:'#0f6e5c',ivanlozhkinn:'#b4471f'};
+const nf=n=>n==null?'—':Number(n).toLocaleString('ru');const kf=n=>n>=1e6?(n/1e6).toFixed(1).replace('.',',')+'M':n>=1e3?Math.round(n/1e3)+'K':String(n);
+const ds=d=>{const [y,m,dd]=d.split('-');return dd+'.'+m};const es=t=>String(t||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const H=(M.history||[]).slice().sort((a,b)=>a.date<b.date?-1:1);
+const fol=u=>H.filter(h=>h.followers&&h.followers[u]!=null).map(h=>[h.date,h.followers[u]]);
+const reels=u=>(M.accounts[u]?.reels||[]).slice().sort((a,b)=>a.date<b.date?-1:1);
+const cum=u=>{const r=reels(u);const m={};let s=0;for(const x of r){s+=x.views||0;m[x.date]=s}return Object.entries(m)};
+const prevViews=u=>{const hv=H.filter(h=>h.views&&h.views[u]);return hv.length>1?hv[hv.length-2].views[u]:null};
+function chart(series,fmt){const W=640,Hh=200,P=36;const all=series.flatMap(s=>s.pts);if(!all.length)return '<p class="st-note">Нет данных</p>';
+ const xs=[...new Set(all.map(p=>p[0]))].sort();const x0=Date.parse(xs[0]),x1=Math.max(Date.parse(xs[xs.length-1]),x0+864e5);const ymax=Math.max(...all.map(p=>p[1]))*1.08||1;
+ const X=d=>P+(Date.parse(d)-x0)/(x1-x0)*(W-P-10),Y=v=>Hh-24-(v/ymax)*(Hh-36);
+ let g='';for(let i=0;i<=3;i++){const v=ymax*i/3;g+=`<line x1="${P}" x2="${W-10}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--line)"/><text x="${P-4}" y="${Y(v)+4}" text-anchor="end">${fmt(Math.round(v))}</text>`}
+ g+=`<text x="${P}" y="${Hh-6}">${ds(xs[0])}</text><text x="${W-10}" y="${Hh-6}" text-anchor="end">${ds(xs[xs.length-1])}</text>`;
+ for(const s of series){if(!s.pts.length)continue;g+=`<polyline fill="none" stroke="${s.c}" stroke-width="2.5" stroke-linejoin="round" points="${s.pts.map(p=>X(p[0])+','+Y(p[1])).join(' ')}"/>`;
+  g+=s.pts.map(p=>`<circle cx="${X(p[0])}" cy="${Y(p[1])}" r="3" fill="${s.c}"><title>@${s.u} · ${ds(p[0])}: ${nf(p[1])}</title></circle>`).join('');
+  const l=s.pts[s.pts.length-1];g+=`<text x="${X(l[0])-4}" y="${Y(l[1])-8}" text-anchor="end" style="fill:${s.c}">${fmt(l[1])}</text>`}
+ return `<svg class="st-chart" viewBox="0 0 ${W} ${Hh}" role="img">${g}</svg>`}
+const leg=ACC.map(u=>`<span><i style="background:${COL[u]}"></i>@${u}</span>`).join('');
+const med=a=>{if(!a.length)return 0;const s=a.slice().sort((x,y)=>x-y),m=s.length>>1;return s.length%2?s[m]:(s[m-1]+s[m])/2};
+function card(u){const r=reels(u),f=fol(u),v=r.map(x=>x.views||0),tot=v.reduce((a,b)=>a+b,0),fn=M.accounts[u].followers??(f.length?f[f.length-1][1]:null);
+ const f0=f[0],gr=f0&&fn!=null?fn-f0[1]:null;const first=r.length?r[0].date:null;const days=first?Math.round((Date.now()-Date.parse(first))/864e5):0;
+ const pv=prevViews(u);const dv=pv?tot-Object.values(pv).reduce((a,b)=>a+b,0):null;
+ return `<div class="st-card"><h3>@${u}</h3><div class="st-kpi">
+ <div><b>${nf(fn)}</b><span>подписчиков${gr!=null?` · <span class="${gr>=0?'st-up':'st-dn'}">${gr>=0?'+':''}${nf(gr)}</span> с ${ds(f0[0])}`:''}</span></div>
+ <div><b>${kf(tot)}</b><span>просмотров всего${dv!=null?` · <span class="st-up">+${kf(dv)}</span> за последний замер`:''}</span></div>
+ <div><b>${r.length}</b><span>роликов с ${first?ds(first):'—'} (${days} дн.)</span></div>
+ <div><b>${kf(Math.round(med(v)))}</b><span>медиана на ролик</span></div>
+ <div><b>${v.filter(x=>x>=1e4).length}</b><span>роликов ≥10K</span></div>
+ <div><b>${v.filter(x=>x>=1e5).length}</b><span>роликов ≥100K</span></div></div>
+ <button class="st-more" type="button" data-acc="${u}" aria-expanded="false">Подробнее</button><div class="st-det" id="det-${u}" hidden></div></div>`}
+function details(u){const r=reels(u),f=fol(u),pv=prevViews(u)||{};
+ let t='<h4>Подписчики по замерам</h4><table><thead><tr><th>Дата</th><th class="n">Подписчики</th><th class="n">Изменение</th></tr></thead><tbody>';
+ f.forEach((p,i)=>{const d=i?p[1]-f[i-1][1]:null;t+=`<tr><td>${ds(p[0])}</td><td class="n">${nf(p[1])}</td><td class="n">${d==null?'—':(d>=0?'+':'')+nf(d)}</td></tr>`});t+='</tbody></table>';
+ const wk={};for(const x of r){const d=new Date(x.date+'T00:00:00Z');const day=(d.getUTCDay()+6)%7;d.setUTCDate(d.getUTCDate()-day);const k=d.toISOString().slice(0,10);(wk[k]=wk[k]||[]).push(x)}
+ t+='<h4>Охваты по неделям выкладки</h4><table><thead><tr><th>Неделя с</th><th class="n">Роликов</th><th class="n">Просмотров</th><th class="n">Медиана</th><th>Лучший</th></tr></thead><tbody>';
+ for(const [k,a] of Object.entries(wk).sort()){const vs=a.map(x=>x.views||0);const b=a.reduce((m,x)=>(x.views||0)>(m.views||0)?x:m,a[0]);t+=`<tr><td>${ds(k)}</td><td class="n">${a.length}</td><td class="n">${nf(vs.reduce((p,c)=>p+c,0))}</td><td class="n">${nf(Math.round(med(vs)))}</td><td>${kf(b.views||0)} · ${es((b.cover||'').slice(0,60))}</td></tr>`}
+ t+='</tbody></table><h4>Все ролики</h4><table><thead><tr><th>Дата</th><th>Обложка</th><th class="n">Просмотры</th><th class="n">За замер</th></tr></thead><tbody>';
+ for(const x of r.slice().sort((a,b)=>(b.views||0)-(a.views||0))){const d=pv[x.code]!=null?(x.views||0)-pv[x.code]:null;t+=`<tr><td>${ds(x.date)}</td><td><a href="${x.url}" target="_blank" rel="noopener">${es((x.cover||'(без обложки)').slice(0,90))}</a></td><td class="n">${nf(x.views)}</td><td class="n">${d==null?'новый':(d>=0?'+':'')+nf(d)}</td></tr>`}
+ return t+'</tbody></table><p class="st-note">Подписчики — по замерам при ежедневном прогоне (первый замер 12.10). «За замер» — прирост с предыдущего сбора.</p>'}
+box.innerHTML=`<h2>Мои аккаунты: рост с начала выкладки</h2><div class="st-leg">${leg}</div><div class="st-grid">
+ <div class="st-card"><h3>Подписчики</h3>${chart(ACC.map(u=>({u,c:COL[u],pts:fol(u)})),nf)}</div>
+ <div class="st-card"><h3>Охваты нарастающим итогом (по дате выкладки)</h3>${chart(ACC.map(u=>({u,c:COL[u],pts:cum(u)})),kf)}</div></div>
+ <div class="st-grid">${ACC.map(card).join('')}</div>`;
+box.addEventListener('click',e=>{const b=e.target.closest('.st-more');if(!b)return;const u=b.dataset.acc,d=document.getElementById('det-'+u);if(d.hidden&&!d.innerHTML)d.innerHTML=details(u);d.hidden=!d.hidden;b.setAttribute('aria-expanded',String(!d.hidden));b.textContent=d.hidden?'Подробнее':'Свернуть'});
+})();
 </script>
 <button id="refresh" type="button" aria-label="Обновить" title="Обновить" onclick="this.style.opacity=.6;location.replace(location.pathname+'?v='+Date.now())"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36L21 8"/><path d="M21 3v5h-5"/></svg></button>
 <button id="totop" type="button" aria-label="Наверх" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></button>
