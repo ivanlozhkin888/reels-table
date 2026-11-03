@@ -375,11 +375,11 @@ const t100=withData.reduce((a,u)=>a+reels(u).filter(r=>(r.views||0)>=1e5).length
 const f0=withData.reduce((a,u)=>a+((fol(u)[0]||[])[1]||0),0);
 const totHtml=`<div class="st-card"><div class="st-kpi">
  <div><b>${ALLACC.length}</b><span>аккаунтов${withData.length<ALLACC.length?` (данные по ${withData.length})`:''}</span></div>
- <div><b>${nf(tF)}</b><span>подписчиков · <span class="st-up">+${nf(tF-f0)}</span> с 12.10</span></div>
+ <div><b>${nf(tF)}</b><span>подписчиков</span></div>
  <div><b>${nf(tR)}</b><span>роликов выложено</span></div>
  <div><b>${kf(tV)}</b><span>просмотров всего</span></div></div></div>`;
 box.innerHTML=`<div class="car"><div class="car-track" id="carT">
- <div class="st-card"><h3>Подписчики</h3><div class="st-kpi"><div><b>${nf(tF)}</b><span>подписчиков · <span class="st-up">+${nf(tF-f0)}</span> с 12.10</span></div><div><b>${ALLACC.length}</b><span>аккаунтов${withData.length<ALLACC.length?` (данные по ${withData.length})`:''}</span></div></div><div class="st-leg">${leg}</div>${chart(ACC.map(u=>({u,c:COL[u],pts:fol(u)})),nf)}</div>
+ <div class="st-card"><h3>Подписчики</h3><div class="st-kpi"><div><b>${nf(tF)}</b><span>подписчиков</span></div><div><b>${ALLACC.length}</b><span>аккаунтов${withData.length<ALLACC.length?` (данные по ${withData.length})`:''}</span></div></div><div class="st-leg">${leg}</div>${chart(ACC.map(u=>({u,c:COL[u],pts:fol(u)})),nf)}</div>
  <div class="st-card"><h3>Охваты нарастающим итогом</h3><div class="st-kpi"><div><b>${kf(tV)}</b><span>просмотров всего</span></div><div><b>${nf(tR)}</b><span>роликов выложено</span></div></div><div class="st-leg">${leg}</div>${chart(ACC.map(u=>({u,c:COL[u],pts:cum(u)})),kf)}</div>
  </div><div class="car-nav"><button type="button" class="car-btn" data-car="-1" aria-label="Назад">‹</button><span class="car-dots">${[0,1].map(k=>`<button type="button" class="car-dot${k?'':' on'}" data-dot="${k}" aria-label="Слайд ${k+1}"></button>`).join('')}</span><button type="button" class="car-btn" data-car="1" aria-label="Вперёд">›</button></div></div>`;
 {const T=document.getElementById('carT');const cur=()=>Math.round(T.scrollLeft/T.clientWidth);const go=k=>T.scrollTo({left:Math.max(0,Math.min(1,k))*T.clientWidth,behavior:'smooth'});
