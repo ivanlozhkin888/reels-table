@@ -223,7 +223,7 @@ tr.used td.art .acts label.usedbox{border-color:var(--accent);color:var(--accent
  <section id="stats" class="stats"></section>
  <div class="chips" id="chips"></div>
  <div class="bar">
-  <select id="sort"><option value="x100" selected>Аномальные ×50 за 7 дней</option><option value="x50">Аномальные ×50 за 120 дней</option><option value="x">Аномальные</option><option value="ts">Трендси</option><option value="date">Новые</option><option value="views">Популярные</option></select>
+  <select id="sort"><option value="x100" selected>Аномальные ×50 за 7 дней</option><option value="x50">Аномальные ×50 за 120 дней</option><option value="x">Аномальные</option><option value="ts">Трендси</option><option value="car">Карусели</option><option value="date">Новые</option><option value="views">Популярные</option></select>
   <select id="recF" hidden style="display:none"><option value="">Все ролики</option><option value="re">Рекомендую для @evanspoonerlife</option><option value="ri">Рекомендую для @ivanlozhkinn</option></select>
   <select id="useF"><option value="">Все статьи</option><option value="yes">Использованные</option><option value="no" selected>Не использованные</option></select>
   <span id="sync" class="sync"></span>
@@ -262,7 +262,7 @@ function esc(s){return (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>'
 function render(){
  chips.querySelectorAll('.chip').forEach(c=>c.setAttribute('aria-pressed',String((c.dataset.v||null)===sel)));
  const t='';
- let r=CUR().filter(x=>(x.art||!USED.has(String(900000+x.ri)))&&(sortKey!=='x'||(x.x||0)>=3)&&(sortKey!=='ts'||x.src==='trendsee')&&(sortKey!=='x100'||((x.x||0)>=50&&(Date.now()-Date.parse(x.date))/864e5<=7))&&(sortKey!=='x50'||((x.x||0)>=50&&(Date.now()-Date.parse(x.date))/864e5<=120))&&(window.VIEW==='hits'?x.kind==='hit':(x.kind!=='hit'&&true))&&(!sel||x.user===sel)&&(!t||(x.cover+' '+x.visual+' '+x.ru+' '+x.art).toLowerCase().includes(t))&&(window.VIEW==='hits'||!uf.value||(x.art&&(uf.value==='yes')===USED.has(x.aid)))&&(!recF.value||x[recF.value]!=null));
+ let r=CUR().filter(x=>(x.art||!USED.has(String(900000+x.ri)))&&(sortKey!=='x'||(x.x||0)>=3)&&(sortKey!=='ts'||x.src==='trendsee')&&((sortKey==='car')===(x.kind==='carousel'))&&(sortKey!=='x100'||((x.x||0)>=50&&(Date.now()-Date.parse(x.date))/864e5<=7))&&(sortKey!=='x50'||((x.x||0)>=50&&(Date.now()-Date.parse(x.date))/864e5<=120))&&(window.VIEW==='hits'?x.kind==='hit':(x.kind!=='hit'&&true))&&(!sel||x.user===sel)&&(!t||(x.cover+' '+x.visual+' '+x.ru+' '+x.art).toLowerCase().includes(t))&&(window.VIEW==='hits'||!uf.value||(x.art&&(uf.value==='yes')===USED.has(x.aid)))&&(!recF.value||x[recF.value]!=null));
  const _now=Date.now(),_spd=x=>x.views/Math.max(1,(_now-Date.parse(x.date))/864e5);r.sort((a,b)=>sortKey==='sc'&&!recF.value?SC(b)-SC(a):sortKey==='fast'?((a.fast!=null)!==(b.fast!=null)?(a.fast!=null?-1:1):a.fast!=null?a.fast-b.fast:_spd(b)-_spd(a)):recF.value?(b[recF.value]-a[recF.value]):sortKey==='views'?b.views-a.views:(sortKey==='x'||sortKey==='x100'||sortKey==='x50')?(b.date.localeCompare(a.date)||(b.x||0)-(a.x||0)):b.date.localeCompare(a.date));
  {const A=new Set(CUR().filter(x=>x.art).map(x=>x.aid));document.getElementById('count').textContent=`${r.length} роликов (${[...A].filter(a=>USED.has(a)).length} из ${A.size} статей использовано)`;}
  
